@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wc.single.sky.disclosures.mapper.DisclosuresBasicMapper">
+
+    <resultMap type="com.wc.single.sky.disclosures.dto.DisclosuresBasicDto" id="disclosuresBasicResult">
+        <result property="id" column="id"/>
+        <result property="basicNumber" column="basic_number"/>
+        <result property="businessGroup" column="business_group"/>
+        <result property="geoCode" column="geo_code"/>
+        <result property="fiscalYear" column="fiscal_year"/>
+        <result property="quarter" column="quarter"/>
+        <result property="qdpFocal" column="qdp_focal"/>
+        <result property="dueDate" column="due_date"/>
+        <result property="status"  column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectDisclosuresBasic">
+        select id, basic_number, business_group, geo_code, fiscal_year, quarter,
+            qdp_focal,due_date,status,del_flag,create_time,
+            create_by, update_by, update_time
+        from disclosures_basic
+    </sql>
+
+    <select id="selectDisclosuresBasicList" parameterType="com.wc.single.sky.disclosures.dto.DisclosuresBasicDto" resultMap="disclosuresBasicResult">
+        <include refid="selectDisclosuresBasic"/>
+        where del_flag = '0'
+        <if test="basicNumber != null and basicNumber != ''">
+            AND basic_number = #{basicNumber}
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="geoCode != null and geoCode != ''">
+            AND geo_code = #{geoCode}
+        </if>
+        <if test="businessGroup != null and businessGroup != ''">
+            AND business_group = #{businessGroup}
+        </if>
+        <if test="fiscalYear != null and fiscalYear != ''">
+            AND fiscal_year = #{fiscalYear}
+        </if>
+        <if test="quarter != null and quarter != ''">
+            AND quarter = #{quarter}
+        </if>
+        <if test="dueDate != null">
+            AND due_date = #{dueDate}
+        </if>
+        <if test="(businessGroupList == null or businessGroupList.size() == 0) and (geoCodeList != null and geoCodeList.size() > 0)">
+            and geo_code in
+            <foreach collection="geoCodeList" item="geoCode" index="index" open="(" close=")" separator=",">
+                #{geoCode}
+            </foreach>
+        </if>
+        <if test="(businessGroupList != null and businessGroupList.size() > 0) and (geoCodeList == null or geoCodeList.size() == 0)">
+            and business_group in
+            <foreach collection="businessGroupList" item="businessGroup" index="index" open="(" close=")" separator=",">
+                #{businessGroup}
+            </foreach>
+        </if>
+        <if test="(businessGroupList != null and businessGroupList.size() > 0) and (geoCodeList != null and geoCodeList.size() > 0)">
+            and ( geo_code in
+            <foreach collection="geoCodeList" item="geoCode" index="index" open="(" close=")" separator=",">
+                #{geoCode}
+            </foreach>
+            or business_group in
+            <foreach collection="businessGroupList" item="businessGroup" index="index" open="(" close=")" separator=",">
+                #{businessGroup}
+            </foreach> )
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="selectDisclosuresBasicCountByStatus" resultType="java.lang.Integer">
+        select count(*)
+            from disclosures_basic
+        where del_flag = '0'
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+    </select>
+
+    <select id="selectDisclosuresBasicCount" resultType="com.wc.single.sky.disclosures.entity.DisclosuresBasicCount">
+        select count(*),status from disclosures_basic where del_flag = '0' group by status
+    </select>
+
+    <update id="deleteDisclosuresBasicByIds">
+        update disclosures_basic
+            set del_flag = '1',update_time = now(),update_by = #{updateBy}
+        where id in
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

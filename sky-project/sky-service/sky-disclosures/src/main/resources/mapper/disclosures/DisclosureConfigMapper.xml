@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wc.single.sky.disclosures.mapper.DisclosureConfigMapper">
+
+    <resultMap type="com.wc.single.sky.disclosures.dto.DisclosureConfigDto" id="disclosureConfigResult">
+        <result property="id" column="id"/>
+        <result property="configKey" column="config_key"/>
+        <result property="configName" column="config_name"/>
+        <result property="configType" column="config_type"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectDisclosuresConfig">
+        select id,config_key,config_name,config_type,parent_id,
+            del_flag,create_time,create_by, update_by, update_time
+        from disclosure_config
+    </sql>
+
+    <select id="listDisclosureConfig" parameterType="com.wc.single.sky.disclosures.dto.DisclosureConfigDto" resultMap="disclosureConfigResult">
+        <include refid="selectDisclosuresConfig"/>
+        where del_flag = '0'
+        <if test="configKey != null and configKey != ''">
+            AND config_key = #{configKey}
+        </if>
+        <if test="configName != null and configName != ''">
+            AND config_name = #{configName}
+        </if>
+        <if test="configType != null and configType != ''">
+            AND config_type = #{configType}
+        </if>
+        <if test="parentId != null and parentId != ''">
+            AND parent_id = #{parentId}
+        </if>
+    </select>
+</mapper>

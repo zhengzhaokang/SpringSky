@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wc.single.sky.disclosures.mapper.EmailReceipentMapper">
+    
+    <resultMap type="com.wc.single.sky.disclosures.entity.EmailReceipentDO" id="EmailReceipentResult">
+        <result property="id"    column="id"    />
+        <result property="businessGroup"    column="business_group"    />
+        <result property="geoCode"    column="geo_code"    />
+        <result property="jobType"    column="job_type"    />
+        <result property="emailReceipent"    column="email_receipent"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="deleteFlag"    column="delete_flag"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectEmailReceipentVo">
+        select id, business_group, geo_code, job_type, email_receipent, create_by, create_time, update_by, update_time, delete_flag,remark from email_receipent
+    </sql>
+
+    <select id="selectEmailReceipentList" parameterType="com.wc.single.sky.disclosures.dto.EmailReceipentDTO" resultMap="EmailReceipentResult">
+        <include refid="selectEmailReceipentVo"/>
+        <where>
+
+            <if test="emailReceipent != null  and emailReceipent != ''"> and <foreach item="item" collection="emailReceipent.split(',')" open="(" separator=" or " close=")"> email_receipent ilike '%' || #{item} || '%' </foreach> </if>
+
+            <if test="businessGroup != null  and businessGroup != ''"> and business_group = #{businessGroup}</if>
+            <if test="geoCode != null  and geoCode != ''"> and geo_code = #{geoCode}</if>
+            <if test="jobType != null  and jobType != ''"> and job_type = #{jobType}</if>
+            <if test="deleteFlag != null "> and delete_flag = #{deleteFlag}</if>
+        </where>
+    </select>
+    
+    <select id="selectEmailReceipentById" parameterType="Long" resultMap="EmailReceipentResult">
+        <include refid="selectEmailReceipentVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertEmailReceipent" parameterType="com.wc.single.sky.disclosures.entity.EmailReceipentDO" useGeneratedKeys="true" keyProperty="id">
+        insert into email_receipent
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="businessGroup != null">business_group,</if>
+            <if test="geoCode != null">geo_code,</if>
+            <if test="jobType != null">job_type,</if>
+            <if test="emailReceipent != null">email_receipent,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="deleteFlag != null">delete_flag,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="businessGroup != null">#{businessGroup},</if>
+            <if test="geoCode != null">#{geoCode},</if>
+            <if test="jobType != null">#{jobType},</if>
+            <if test="emailReceipent != null">#{emailReceipent},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="deleteFlag != null">#{deleteFlag},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateEmailReceipent" parameterType="com.wc.single.sky.disclosures.entity.EmailReceipentDO">
+        update email_receipent
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="businessGroup != null">business_group = #{businessGroup},</if>
+            <if test="geoCode != null">geo_code = #{geoCode},</if>
+            <if test="jobType != null">job_type = #{jobType},</if>
+            <if test="emailReceipent != null">email_receipent = #{emailReceipent},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="deleteFlag != null">delete_flag = #{deleteFlag},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteEmailReceipentById" parameterType="Long">
+        delete from email_receipent where id = #{id}
+    </delete>
+
+    <delete id="deleteEmailReceipentByIds" parameterType="String">
+        delete from email_receipent where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
