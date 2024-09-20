@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wc.single.sky.disclosures.mapper.EmailTemplateMapper">
+
+    <resultMap id="entityResultMap" type="com.wc.single.sky.disclosures.entity.EmailTemplateEntity">
+        <result column="id" property="id" />
+        <result column="email_type" property="emailType" />
+        <result column="business_group" property="businessGroup" />
+        <result column="mail_title" property="mailTitle" />
+        <result column="mail_body"  property="mailBody" />
+        <result column="params_list"  property="paramsList" />
+        <result column="params_table_list"  property="paramsTableList" />
+        <result column="geo_code"  property="geoCode" />
+        <result column="attachment" property="attachment" />
+        <result column="market" property="market" />
+        <result column="create_by"  property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by"  property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="active" property="active" />
+        <result column="business_type" property="businessType" />
+        <result column="module" property="module" />
+        <result column="email_dimension" property="emailDimension" />
+        <result column="delete_flag" property="deleteFlag" />
+    </resultMap>
+
+    <resultMap id="entityResultMap2" type="com.wc.single.sky.disclosures.entity.EmailSendHistoryRequest">
+        <result column="email_type" property="emailType" />
+        <result column="business_group" property="businessGroup" />
+        <result column="mail_title" property="mailTitle" />
+        <result column="table_params" property="tableParams" />
+        <result column="normal_params" property="normalParams" />
+        <result column="delete_flag" property="deleteFlag" />
+        <result column="success" property="success" />
+        <result column="mail_body"  property="mailBody" />
+        <result column="mail_from"  property="mailFrom" />
+        <result column="mail_to"    property="mailTo" />
+        <result column="mail_cc"    property="mailCc" />
+        <result column="attachment" property="attachment" />
+        <result column="create_by"  property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by"  property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="trace_id" property="traceId" />
+    </resultMap>
+
+    <resultMap id="entityResultMap3" type="com.wc.single.sky.disclosures.entity.EmailCondition">
+        <result column="id" property="id" />
+        <result column="email_type" property="emailType" />
+        <result column="business_group" property="businessGroup" />
+        <result column="geo_code"  property="geoCode" />
+        <result column="market" property="market" />
+        <result column="business_type" property="businessType" />
+        <result column="module" property="module" />
+    </resultMap>
+
+    <select id="getEmailTemplateByPage" parameterType="com.wc.single.sky.disclosures.entity.EmailTemplateEntity" resultMap="entityResultMap">
+        select * from email_template
+        where 1=1
+        <if test="deleteFlag != null ">
+            and delete_flag = #{deleteFlag}
+        </if>
+        <if test="active != null ">
+            and active = #{active}
+        </if>
+        <if test="emailType != null and emailType != ''">
+            and email_type = #{emailType}
+        </if>
+        <if test="geoCode != null and geoCode != ''">
+            and geo_code = #{geoCode}
+        </if>
+        <if test="businessGroup != null and businessGroup != ''">
+            and business_group = #{businessGroup}
+        </if>
+        <if test="mailTitle != null and mailTitle != ''">
+            and mail_title = #{mailTitle}
+        </if>
+        <if test="market != null and market != ''">
+            and market = #{market}
+        </if>
+        <if test="createBy != null and createBy != ''">
+            and create_by = #{createBy}
+        </if>
+        <if test="businessType != null and businessType != ''">
+            and business_type = #{businessType}
+        </if>
+        <if test="module != null and module != ''">
+            and module = #{module}
+        </if>
+        ORDER BY update_time desc
+    </select>
+
+
+    <select id="getConditionOfEmail" parameterType="com.wc.single.sky.disclosures.entity.EmailCondition" resultMap="entityResultMap3">
+        select * from email_config
+        where  1=1
+        <if test="module != null and module != ''">
+            and module = #{module}
+        </if>
+        <if test="businessType != null and businessType != ''">
+            and business_type = #{businessType}
+        </if>
+        <if test="emailType != null and emailType != ''">
+            and email_type = #{emailType}
+        </if>
+
+    </select>
+
+
+
+    <select id="getOneEmailTemplate" parameterType="com.wc.single.sky.disclosures.entity.EmailDimension" resultMap="entityResultMap">
+<!--        select id,email_type,business_group,mail_title,mail_body,attachment,params_list,create_by,create_time,update_by,update_time from email_template-->
+        select * from email_template
+        where 1=1
+        and delete_flag = false
+        <if test="active != null ">
+            and active = #{active}
+        </if>
+        <choose>
+            <when test="id != null">and id = #{id}</when>
+            <otherwise>
+                and lower(module) = lower(#{module})
+                and lower(email_type) = lower(#{emailType})
+                and lower(geo_code) = lower(#{geoCode})
+                and lower(business_group) = lower(#{businessGroup})
+                and lower(business_type) = lower(#{businessType})
+            </otherwise>
+        </choose>
+
+        ORDER BY update_time desc   limit 1;
+    </select>
+
+
+    <!--根据传递的操作日志信息添加操作日志数据 -->
+    <insert id="insertEmailTemplate" parameterType="com.wc.single.sky.disclosures.entity.EmailTemplateEntity" useGeneratedKeys="true" keyProperty="id">
+        insert into email_template(
+        email_type
+        ,active
+        ,create_by
+        ,create_time
+        ,update_by
+        ,update_time
+        ,market
+        ,business_group
+        ,mail_title
+        ,mail_body
+        ,attachment
+        ,remark
+        ,geo_code
+        ,need_params
+        ,params_list
+        ,delete_flag
+        ,business_type
+        ,module
+        ,email_dimension
+        ,params_table_list
+        )
+        values
+            (
+            #{emailTemplate.emailType},
+            #{emailTemplate.active},
+            #{emailTemplate.createBy},
+            now(),
+            #{emailTemplate.updateBy},
+            now(),
+            #{emailTemplate.market},
+            #{emailTemplate.businessGroup},
+            #{emailTemplate.mailTitle},
+            #{emailTemplate.mailBody},
+            #{emailTemplate.attachment},
+            #{emailTemplate.remark},
+            #{emailTemplate.geoCode},
+            #{emailTemplate.needParams},
+            #{emailTemplate.paramsList},
+            #{emailTemplate.deleteFlag},
+            #{emailTemplate.businessType},
+            #{emailTemplate.module},
+            #{emailTemplate.emailDimension},
+            #{emailTemplate.paramsTableList}
+            )
+    </insert>
+
+    <update id="updateEmailTemplate">
+        update email_template
+        set mail_title = #{emailTemplate.mailTitle},
+        mail_body = #{emailTemplate.mailBody},
+        <if test="emailTemplate.deleteFlag != null">delete_flag = #{emailTemplate.deleteFlag},</if>
+        update_time = now(),update_by=#{emailTemplate.updateBy}
+        where id = #{emailTemplate.id}
+    </update>
+
+    <update id="updateEmailTemplateEnable">
+        update email_template
+        set active = #{emailTemplate.active},
+        update_time = now(),update_by = #{emailTemplate.updateBy}
+        where id = #{emailTemplate.id}
+    </update>
+
+</mapper>

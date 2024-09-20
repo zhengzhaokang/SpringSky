@@ -1,0 +1,79 @@
+server:
+  port: 8875
+  servlet:
+    # 应用的访问路径
+    context-path: /
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # tomcat最大线程数，默认为200
+# 日志配置
+logging:
+  level:
+    com.wc.single.sky: debug
+    org.springframework: warn
+
+spring:
+  application:
+    name: ${APPLICATION_NAME:sky}--${SERVICE_NAME:disclosure}
+  # 切换配置
+  profiles:
+    active: tst
+  devtools:
+    restart:
+      enabled: true
+  main:
+    allow-bean-definition-overriding: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  servlet:
+    multipart:
+      maxFileSize: 10MB  #单位必须大写MB或不写(即为B)
+      maxRequestSize: 10MB
+  messages:
+    # 国际化资源文件路径
+    basename: i18n/messages
+# MyBatis
+mybatis:
+  # 搜索指定包别名
+  typeAliasesPackage: com.wc.single.sky
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  configuration:
+    default-fetch-size: 5000
+
+mapper:
+  not-empty: true
+  identity: postgresql
+
+# PageHelper分页插件
+pagehelper:
+  helperDialect: postgresql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+servlet:
+  multipart:
+    # 文件最大限制
+    max-file-size: 100MB
+    # 请求最大限制
+    max-request-size: 100MB
+
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus,info,health"
+  endpoint:
+    prometheus:
+      enabled: true
+# 启动系统日志kafka发送端配置设置为false 由于system是消费端 不会是发送端所以不启动 设置为false
+enableSystemLog: false

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wc.single.sky.disclosures.mapper.EmailSendMapper">
+
+    <resultMap id="entityResultMap" type="com.wc.single.sky.disclosures.entity.EmailTemplateEntity">
+        <result column="id" property="id" />
+        <result column="email_type" property="emailType" />
+        <result column="business_group" property="businessGroup" />
+        <result column="mail_title" property="mailTitle" />
+        <result column="mail_body"  property="mailBody" />
+        <result column="attachment" property="attachment" />
+        <result column="market" property="market" />
+        <result column="create_by"  property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by"  property="updateBy" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <resultMap id="entityResultMap2" type="com.wc.single.sky.disclosures.entity.EmailSendHistoryRequest">
+        <result column="unique_id" property="uniqueId" />
+        <result column="email_type" property="emailType" />
+        <result column="business_group"         property="businessGroup" />
+        <result column="geo_code"         property="geoCode" />
+        <result column="send_time"         property="sendTime" />
+        <result column="mail_title" property="mailTitle" />
+        <result column="table_params" property="tableParams" />
+        <result column="normal_params" property="normalParams" />
+        <result column="delete_flag" property="deleteFlag" />
+        <result column="success" property="success" />
+        <result column="fail_reason" property="failReason" />
+        <result column="mail_body"  property="mailBody" />
+        <result column="mail_from"  property="mailFrom" />
+        <result column="mail_to"    property="mailTo" />
+        <result column="mail_cc"    property="mailCc" />
+        <result column="attachment" property="attachment" />
+        <result column="create_by"  property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by"  property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="trace_id" property="traceId" />
+        <result column="title_params" property="titleParams" />
+
+    </resultMap>
+    <update id="updateSendHistory">
+        update email_history
+        set update_time = now()
+        <if test="emailSendHistoryEntity.success != null and emailSendHistoryEntity.success != ''">
+            ,success = #{emailSendHistoryEntity.success}
+        </if>
+        <if test="emailSendHistoryEntity.deleteFlag != null  ">
+            ,delete_flag = #{emailSendHistoryEntity.deleteFlag}
+        </if>
+        <if test="emailSendHistoryEntity.failReason != null and emailSendHistoryEntity.failReason != ''">
+            ,fail_reason = #{emailSendHistoryEntity.failReason}
+        </if>
+        where unique_id = #{emailSendHistoryEntity.uniqueId}
+    </update>
+
+
+    <update id="deleteBeforeSendHistory">
+        update email_history
+        set update_time = now()
+        <if test="emailSendHistoryEntity.success != null and emailSendHistoryEntity.success != ''">
+            ,success = #{emailSendHistoryEntity.success}
+        </if>
+        <if test="emailSendHistoryEntity.deleteFlag != null  ">
+            ,delete_flag = #{emailSendHistoryEntity.deleteFlag}
+        </if>
+        where trace_id = #{emailSendHistoryEntity.traceId} and unique_id != #{emailSendHistoryEntity.uniqueId}
+    </update>
+
+    <update id="deleteSendHistory">
+        update email_history
+        set update_time = now()
+        <if test="emailSendHistoryEntity.deleteFlag != null and emailSendHistoryEntity.deleteFlag != ''">
+            ,delete_flag = #{emailSendHistoryEntity.deleteFlag}
+        </if>
+        where  unique_id != #{emailSendHistoryEntity.uniqueId} and trace_id = #{emailSendHistoryEntity.traceId}
+    </update>
+
+
+    <!--根据传递的操作日志信息添加操作日志数据 -->
+    <insert id="insertSendHistory" parameterType="com.wc.single.sky.disclosures.entity.EmailSendHistoryEntity">
+        insert into email_history(
+        trace_id,
+        unique_id,
+        email_type
+        ,send_time
+        ,normal_params
+        ,table_params
+        ,remark
+        ,delete_flag
+        ,create_by
+        ,create_time
+        ,update_by
+        ,update_time
+        ,market
+        ,business_group
+        ,mail_title
+        ,mail_body
+        ,attachment
+        ,mail_to
+        ,mail_from
+        ,mail_cc
+        ,success
+        ,email_dimension
+        ,geo_code
+        ,business_type
+        ,fail_reason
+        ,module
+        )
+        values
+        (
+        #{emailSendHistoryEntity.traceId},
+        #{emailSendHistoryEntity.uniqueId},
+        #{emailSendHistoryEntity.emailType},
+        now(),
+        #{emailSendHistoryEntity.normalParams},
+        #{emailSendHistoryEntity.tableParams},
+        #{emailSendHistoryEntity.remark},
+        #{emailSendHistoryEntity.deleteFlag},
+        #{emailSendHistoryEntity.createBy},
+        now(),
+        #{emailSendHistoryEntity.updateBy},
+        now(),
+        #{emailSendHistoryEntity.market},
+        #{emailSendHistoryEntity.businessGroup},
+        #{emailSendHistoryEntity.mailTitle},
+        #{emailSendHistoryEntity.mailBody},
+        #{emailSendHistoryEntity.attachment},
+        #{emailSendHistoryEntity.mailTo},
+        #{emailSendHistoryEntity.mailFrom},
+        #{emailSendHistoryEntity.mailCc},
+        #{emailSendHistoryEntity.success},
+        #{emailSendHistoryEntity.emailDimension},
+        #{emailSendHistoryEntity.geoCode},
+        #{emailSendHistoryEntity.businessType},
+        #{emailSendHistoryEntity.failReason},
+        #{emailSendHistoryEntity.module}
+        )
+    </insert>
+
+
+    <select id="getEmailSendHistoryListForCheck" parameterType="com.wc.single.sky.disclosures.entity.EmailSendHistoryRequest" resultMap="entityResultMap2">
+        select * from email_history
+        WHERE success = 2 and  delete_flag = 0
+        <if test="uniqueIds != null and uniqueIds.size>0">
+            and unique_id in
+            <foreach item="item" index="index" collection="uniqueIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="sendTime != null and sendTime != ''">
+            and send_time=#{sendTime}
+        </if>
+        <if test="traceId != null and traceId != ''">
+            and trace_id=#{traceId}
+        </if>
+        <if test="mailCc != null and mailCc != ''">
+            and mailCc=#{mailCc}
+        </if>
+        <if test="mailTo != null and mailTo != ''">
+            and mailTo=#{mailTo}
+        </if>
+        <if test="mailFrom != null and mailFrom != ''">
+            and mailFrom=#{mailFrom}
+        </if>
+        ORDER BY update_time desc
+    </select>
+
+
+    <select id="getEmailSendHistoryList" parameterType="com.wc.single.sky.disclosures.entity.EmailSendHistoryRequest" resultMap="entityResultMap2">
+        select * from email_history
+        WHERE 1=1
+        <if test="uniqueIds != null and uniqueIds.size>0">
+            and unique_id in
+            <foreach item="item" index="index" collection="uniqueIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="success != null and success != ''">
+            and success=#{success}
+        </if>
+        <if test="deleteFlag != null  ">
+            and delete_flag=#{deleteFlag}
+        </if>
+        <if test="sendTimeBegin != null ">
+            and send_time &gt; #{sendTimeBegin}
+        </if>
+        <if test="sendTimeEnd != null ">
+            and send_time &lt; #{sendTimeEnd}
+        </if>
+        <if test="traceId != null and traceId != ''">
+            and trace_id=#{traceId}
+        </if>
+        <if test="mailCc != null and mailCc != ''">
+            and mailCc=#{mailCc}
+        </if>
+        <if test="mailTo != null and mailTo != ''">
+            and mailTo=#{mailTo}
+        </if>
+        <if test="mailFrom != null and mailFrom != ''">
+            and mailFrom=#{mailFrom}
+        </if>
+        ORDER BY update_time desc
+    </select>
+
+
+    <select id="checkSendHistory" parameterType="com.wc.single.sky.disclosures.dto.EmailSendDTO" resultMap="entityResultMap2">
+        select * from email_history
+        WHERE success = 1 and  delete_flag = false
+        <if test="traceId != null and traceId != ''">
+            and trace_id=#{traceId}
+        </if>
+    </select>
+
+
+    <select id="getSendHistoryById" parameterType="java.lang.String" resultMap="entityResultMap">
+        select * from email_history
+        where 1=1
+        <if test="id != null and id != ''">
+            and id = #{id}
+        </if>
+    </select>
+
+</mapper>

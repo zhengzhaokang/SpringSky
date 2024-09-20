@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wc.single.sky.disclosures.mapper.DisclosuresItemMapper">
+
+    <resultMap type="com.wc.single.sky.disclosures.dto.DisclosuresItemDto" id="disclosuresItemResult">
+        <result property="id" column="id"/>
+        <result property="itemNumber" column="item_number"/>
+        <result property="disclosuresId" column="disclosures_id"/>
+        <result property="keyInfo" column="key_info"/>
+        <result property="description" column="description"/>
+        <result property="rootCause" column="root_cause"/>
+        <result property="impact" column="impact"/>
+        <result property="inQtrBooks" column="in_qtr_books"/>
+        <result property="itemClassification"  column="item_classification"/>
+        <result property="action" column="action"/>
+        <result property="issueStatus" column="issue_status"/>
+        <result property="owner" column="owner"/>
+        <result property="targetDate" column="target_date"/>
+        <result property="acctEntry" column="acct_entry"/>
+        <result property="inPriorQuarter" column="in_prior_quarter"/>
+        <result property="status"  column="status"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="selectDisclosuresItem">
+        select id, item_number, disclosures_id, key_info, region, description, root_cause,
+        impact, in_qtr_books, item_classification, action, issue_status,
+        owner, target_date, acct_entry, in_prior_quarter, status,
+        del_flag,create_time,create_by, update_by, update_time
+        from disclosures_item
+    </sql>
+
+    <sql id="selectDisclosuresItemAct">
+        select id, disclosures_id, item_number, key_info,owner, issue_status,
+        status,del_flag,create_time,create_by, update_by, update_time
+        from disclosures_item
+    </sql>
+
+    <select id="selectDisclosuresItemList" parameterType="com.wc.single.sky.disclosures.dto.DisclosuresItemDto" resultMap="disclosuresItemResult">
+        <include refid="selectDisclosuresItem"/>
+        where del_flag = '0'
+        <if test="itemNumber != null and itemNumber != ''">
+            AND item_number = #{itemNumber}
+        </if>
+        <if test="keyInfo != null and keyInfo != ''">
+            AND key_info like '%'||#{keyInfo}||'%'
+        </if>
+        <if test="status != null and status != ''">
+            AND status = #{status}
+        </if>
+        <if test="issueStatus != null and issueStatus != ''">
+            AND issue_status = #{issueStatus}
+        </if>
+        <if test="disclosuresId != null and disclosuresId != ''">
+            AND disclosures_id = #{disclosuresId}
+        </if>
+        <if test="createBy != null and createBy != ''">
+            AND create_by = #{createBy}
+        </if>
+        order by create_time desc
+    </select>
+
+    <update id="deleteDisclosuresItemByIds">
+        update disclosures_item
+        set del_flag = '1',update_time = now(),update_by = #{updateBy}
+        where id in
+        <foreach collection="ids" separator="," open="(" close=")" item="id">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateDisclosuresItemById" parameterType="com.wc.single.sky.disclosures.dto.DisclosuresItemDto">
+        update disclosures_item set
+        acct_entry = #{acctEntry}
+        where id = #{id}
+    </update>
+
+</mapper>
