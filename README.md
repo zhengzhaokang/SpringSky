@@ -15,7 +15,7 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.xpaas.lenovo.com/ltp/qdp.git
+git remote add origin https://github.com/zhengzhaokang/spring-single-sky.git
 git branch -M main
 git push -uf origin main
 ```
